@@ -1,4 +1,4 @@
-# Converts an indidivual Python file or a directory of Python files to Python3
+# Converts an individual Python file or a directory of Python files to Python3
 # Note - These functions will overwrite the files after conversion. Originals are not retained.
 
 from lib2to3.refactor import RefactoringTool, get_fixers_from_package
