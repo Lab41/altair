@@ -1,7 +1,7 @@
 import io, tokenize
 def separate_code_and_comments(script):
     """
-    Tokenizes a Python script and returns 'source code' and 'comments'
+    Tokenizes a Python script and returns 'code' and 'comments'
     Algorithm modified for Python 3 from Dan McDougall's post on Stack Overflow
     Input: String representation of a Python script
     Output: code (string), comments (string)
