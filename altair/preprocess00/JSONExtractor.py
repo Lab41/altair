@@ -15,14 +15,15 @@ class JSONExtractor:
 
         with gzip.open(path_to_json_gz, "rb") as f1:
             for line in f1:
-                j = json.loads(line)
+                j = json.loads(line.decode("utf-8"))
                 target = os.path.join(folder, "%s.%s" % (j["id"], self.output_extension))
-                with open(target, "w") as f2:
+                with open(target, "wb") as f2:
                     f2.write(j["content"].encode("utf-8"))
 
     def extract_dir(self, input_dir):
-        for json_gz_file in os.listdir(input_dir):
-            self.extract(json_gz_file)
+        for json_gz_file in sorted(os.listdir(input_dir)):
+            fullpath = os.path.join(input_dir, json_gz_file)
+            self.extract(fullpath)
 
 if __name__ == "__main__":
     import argparse
