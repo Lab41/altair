@@ -1,7 +1,6 @@
-from altair.preprocess00 import separate_code_and_comments
-
 def main():
     pass
 
+# Run this when called from CLI
 if __name__ == "__main__":
     main()
