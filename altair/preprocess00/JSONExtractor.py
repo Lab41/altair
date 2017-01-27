@@ -1,6 +1,11 @@
 import gzip
 import json
 import os
+import time
+
+from altair.util.log import getLogger
+
+logger = getLogger(__name__)
 
 class JSONExtractor:
     def __init__(self, output_dir, output_extension):
@@ -15,14 +20,19 @@ class JSONExtractor:
 
         with gzip.open(path_to_json_gz, "rb") as f1:
             for line in f1:
-                j = json.loads(line)
+                j = json.loads(line.decode("utf-8"))
                 target = os.path.join(folder, "%s.%s" % (j["id"], self.output_extension))
-                with open(target, "w") as f2:
-                    f2.write(j["content"].encode("utf-8"))
+                if not os.path.exists(target):
+                    with open(target, "wb") as f2:
+                        f2.write(j["content"].encode("utf-8"))
 
     def extract_dir(self, input_dir):
-        for json_gz_file in os.listdir(input_dir):
-            self.extract(json_gz_file)
+        for json_gz_file in sorted(os.listdir(input_dir)):
+            fullpath = os.path.join(input_dir, json_gz_file)
+            logger.info("Processing file: %s" % fullpath)
+            start_time = time.time()
+            self.extract(fullpath)
+            logger.info("Elapsed time: %s" % (time.time()-start_time))
 
 if __name__ == "__main__":
     import argparse
