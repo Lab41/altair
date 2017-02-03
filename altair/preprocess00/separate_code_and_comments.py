@@ -1,8 +1,12 @@
 import io, tokenize
+from altair.util.log import getLogger
+
+logger = getLogger(__name__)
+
 def separate_code_and_comments(script):
     """
     Tokenizes a Python script and returns 'code' and 'comments'
-    Algorithm modified for Python 3 from Dan McDougall's post on Stack Overflow
+    Algorithm from pyminifier modified for Python 3 based on Dan McDougall's post on Stack Overflow
     Input: String representation of a Python script
     Output: code (string), comments (string)
     """
@@ -12,8 +16,15 @@ def separate_code_and_comments(script):
     prev_toktype = tokenize.INDENT
     last_lineno = -1
     last_col = 0
-    
-    for tok in tokenize.generate_tokens(io_obj.readline):
+
+    # Tokenize will throw syntax errors (ex: IndentationError)
+    try:
+        token_list = [x for x in tokenize.generate_tokens(io_obj.readline)]
+    except:
+        logger.info("Error tokenizing script; skipping file")
+        return False,False
+
+    for tok in token_list:
         token_type = tok[0]
         token_string = tok[1]
         start_line, start_col = tok[2]
@@ -34,7 +45,7 @@ def separate_code_and_comments(script):
         # This series of conditionals identifies docstrings:
         elif token_type == tokenize.STRING:
             if prev_toktype != tokenize.INDENT:
-        # This is likely a docstring; double-check we're not inside an operator:
+                # This is likely a docstring; double-check we're not inside an operator:
                 if prev_toktype != tokenize.NEWLINE:
                     # Note regarding NEWLINE vs NL: The tokenize module
                     # differentiates between newlines that start a new statement
@@ -55,16 +66,17 @@ def separate_code_and_comments(script):
                     #     test = [
                     #         "The spaces before this string do not get a token"
                     #     ]
-            
+
             # If this isn't inside an operator then it's a docstring comment
             if not inside_operator:
                 comments += token_string
 
         else:
             code += token_string
-            
+
         prev_toktype = token_type
         last_col = end_col
         last_lineno = end_line
-            
+
     return code,comments
+
