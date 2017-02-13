@@ -1,0 +1,144 @@
+name: altair
+channels:
+- defaults
+dependencies:
+- beautifulsoup4=4.5.3=py35_0
+- bokeh=0.12.4=py35_0
+- boto=2.45.0=py35_0
+- bz2file=0.98=py35_0
+- cffi=1.9.1=py35_0
+- chardet=2.3.0=py35_0
+- cloudpickle=0.1.1=py35_0
+- conda-verify=2.0.0=py35_0
+- cryptography=1.7.1=py35_0
+- cycler=0.10.0=py35_0
+- cython=0.24.1=py35_0
+- dbus=1.10.10=0
+- decorator=4.0.11=py35_0
+- dill=0.2.5=py35_0
+- entrypoints=0.2.2=py35_0
+- expat=2.1.0=0
+- filelock=2.0.7=py35_0
+- fontconfig=2.12.1=2
+- freetype=2.5.5=2
+- gensim=0.12.4=np111py35_0
+- glib=2.50.2=1
+- gst-plugins-base=1.8.0=0
+- gstreamer=1.8.0=0
+- h5py=2.6.0=np111py35_2
+- hdf5=1.8.17=1
+- icu=54.1=0
+- idna=2.2=py35_0
+- ipykernel=4.5.2=py35_0
+- ipython=5.1.0=py35_0
+- ipython_genutils=0.1.0=py35_0
+- ipywidgets=5.2.2=py35_1
+- jbig=2.1=0
+- jinja2=2.9.4=py35_0
+- jpeg=8d=2
+- jsonschema=2.5.1=py35_0
+- jupyter_client=4.4.0=py35_0
+- jupyter_core=4.2.1=py35_0
+- libffi=3.2.1=1
+- libgcc=5.2.0=0
+- libgfortran=3.0.0=1
+- libiconv=1.14=0
+- libpng=1.6.27=0
+- libsodium=1.0.10=0
+- libtiff=4.0.6=2
+- libxcb=1.12=1
+- libxml2=2.9.4=0
+- llvmlite=0.14.0=py35_0
+- markupsafe=0.23=py35_2
+- matplotlib=1.5.3=np111py35_1
+- mistune=0.7.3=py35_0
+- mkl=2017.0.1=0
+- mpmath=0.19=py35_1
+- nbconvert=4.2.0=py35_0
+- nbformat=4.2.0=py35_0
+- networkx=1.11=py35_0
+- notebook=4.3.1=py35_0
+- numba=0.29.0=np111py35_0
+- numexpr=2.6.1=np111py35_2
+- numpy=1.11.3=py35_0
+- openssl=1.0.2k=0
+- pandas=0.18.1=np111py35_0
+- patchelf=0.9=0
+- path.py=10.0=py35_0
+- patsy=0.4.1=py35_0
+- pcre=8.39=1
+- pexpect=4.2.1=py35_0
+- pickleshare=0.7.4=py35_0
+- pillow=3.4.2=py35_0
+- pip=9.0.1=py35_1
+- pkginfo=1.4.1=py35_0
+- prompt_toolkit=1.0.9=py35_0
+- ptyprocess=0.5.1=py35_0
+- pyasn1=0.1.9=py35_0
+- pycosat=0.6.1=py35_1
+- pycparser=2.17=py35_0
+- pycrypto=2.6.1=py35_4
+- pygments=2.1.3=py35_0
+- pyopenssl=16.2.0=py35_0
+- pyparsing=2.1.4=py35_0
+- pyqt=5.6.0=py35_2
+- python=3.5.2=0
+- python-dateutil=2.6.0=py35_0
+- pytz=2016.10=py35_0
+- pyyaml=3.12=py35_0
+- pyzmq=16.0.2=py35_0
+- qt=5.6.2=2
+- readline=6.2=2
+- requests=2.12.4=py35_0
+- ruamel_yaml=0.11.14=py35_1
+- scikit-image=0.12.3=np111py35_1
+- scikit-learn=0.18.1=np111py35_1
+- scipy=0.18.1=np111py35_1
+- seaborn=0.7.1=py35_0
+- setuptools=27.2.0=py35_0
+- simplegeneric=0.8.1=py35_1
+- sip=4.18=py35_0
+- six=1.10.0=py35_0
+- smart_open=1.3.5=py35_0
+- sqlite=3.13.0=0
+- statsmodels=0.6.1=np111py35_1
+- sympy=1.0=py35_0
+- terminado=0.6=py35_0
+- tk=8.5.18=0
+- tornado=4.4.2=py35_0
+- traitlets=4.3.1=py35_0
+- wcwidth=0.1.7=py35_0
+- wheel=0.29.0=py35_0
+- widgetsnbextension=1.2.6=py35_0
+- xz=5.2.2=1
+- yaml=0.1.6=0
+- zeromq=4.1.5=0
+- zlib=1.2.8=3
+- pip:
+  - appdirs==1.4.0
+  - baron==0.6.5
+  - blocks==0.2.0
+  - fuel==0.2.0
+  - ganymede==0.1
+  - ipython-genutils==0.1.0
+  - jupyter-client==4.4.0
+  - jupyter-core==4.2.1
+  - jupyter-nbgallery==0.2.4
+  - jupyterhub==0.5.0
+  - keras==1.2.0
+  - pamela==0.3.0
+  - picklable-itertools==0.1.1
+  - progressbar2==3.6.0
+  - prompt-toolkit==1.0.9
+  - protobuf==3.0.0
+  - python-logstash==0.4.6
+  - redbaron==0.6.3
+  - rply==0.7.4
+  - smart-open==1.3.5
+  - sqlalchemy==1.1.5
+  - tables==3.3.0
+  - tensorflow==0.11.0
+  - theano==0.8.2
+  - toolz==0.7.2
+prefix: /opt/conda/envs/altair
+
