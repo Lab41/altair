@@ -3,7 +3,7 @@ from altair.util.log import getLogger
 
 logger = getLogger(__name__)
 
-def separate_code_and_comments(script):
+def separate_code_and_comments(script, script_id):
     """
     Tokenizes a Python script and returns 'code' and 'comments'
     Algorithm from pyminifier modified for Python 3 based on Dan McDougall's post on Stack Overflow
@@ -21,8 +21,8 @@ def separate_code_and_comments(script):
     try:
         token_list = [x for x in tokenize.generate_tokens(io_obj.readline)]
     except:
-        logger.info("Error tokenizing script; skipping file")
-        return False,False
+        logger.info("Error tokenizing %s; skipping file" % script_id)
+        return "",""
 
     for tok in token_list:
         token_type = tok[0]
