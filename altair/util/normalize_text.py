@@ -16,7 +16,7 @@ python_stop_words = ['false', 'none', 'true', 'and', 'as', 'assert', 'break', 'c
               'in', 'is', 'lambda', 'nonlocal', 'not', 'or', 'pass', 'raise', 'return', 'try', 'while', \
               'with', 'yield']
 
-def normalize_text(raw_text, remove_stop_words=True, only_letters=True, return_list=False, **kwargs):
+def normalize_text(raw_text, remove_stop_words=True, only_letters=True, return_list=False, remove_one_char_words=True, **kwargs):
     '''
     Algorithm to convert raw text to a return a clean text string
     Method modified from code available at:
@@ -26,6 +26,7 @@ def normalize_text(raw_text, remove_stop_words=True, only_letters=True, return_l
         remove_stop_words: Boolean value to trigger removal of stop words
         only_letters: Boolean value to trigger removal of characters that are not letters
         return_list: Boolean value to trigger return value as a list of words
+        remove_one_char_words: Boolean value to trigger removal of words that are only a single character
     Returns:
         clean_text: Either a string or a list of words that has been filtered based on function parameters.
 
@@ -48,7 +49,10 @@ def normalize_text(raw_text, remove_stop_words=True, only_letters=True, return_l
     # 5. Remove stop words
     if remove_stop_words: clean_text = [w for w in clean_text if not w in python_stop_words]
 
-    # 6. Return as string or list based on parameters
+    # 6. Remove words that are only a single character in length
+    if remove_one_char_words: clean_text = [w for w in clean_text if len(w)>1]
+
+    # 7. Return as string or list based on parameters
     if return_list:
         return clean_text
     else:

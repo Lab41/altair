@@ -27,10 +27,8 @@ def build_bow_script_vocabulary(script_folder, vocab_size=5000, min_count=2):
         fullpath = os.path.join(script_folder, py_file)
         with open(fullpath, "r") as py_file_contents:
             code, comments = separate_code_and_comments(py_file_contents.read(),py_file)
-            normalized_script = normalize_text(code, True, True, True)
-            for token in normalized_script:
-                # Only keep token if it is two or more characters long (ex: os)
-                if len(token) > 1: word_count[token] += 1
+            normalized_script = normalize_text(code, True, True, True, True)
+            for token in normalized_script: word_count[token] += 1
 
     # Determine descending order for library based on count and restricted by min_count threshold
     words_ordered_by_count = [i[0] for i in sorted(word_count.items(), key=lambda x: (x[1], x[0]), reverse=True) if
