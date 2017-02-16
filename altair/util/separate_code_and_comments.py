@@ -21,7 +21,7 @@ def separate_code_and_comments(script, script_id):
     try:
         token_list = [x for x in tokenize.generate_tokens(io_obj.readline)]
     except:
-        logger.info("Error tokenizing %s; skipping file" % script_id)
+        logger.info("Error tokenizing %s; continuing" % script_id)
         return "",""
 
     for tok in token_list:

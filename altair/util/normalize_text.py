@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import re
 import warnings
-
+from sklearn.feature_extraction.stop_words import ENGLISH_STOP_WORDS
 from altair.util.log import getLogger
 
 logger = getLogger(__name__)
@@ -47,7 +47,9 @@ def normalize_text(raw_text, remove_stop_words=True, only_letters=True, return_l
     clean_text = clean_text.lower().split()
 
     # 5. Remove stop words
-    if remove_stop_words: clean_text = [w for w in clean_text if not w in python_stop_words]
+    if remove_stop_words:
+        clean_text = [w for w in clean_text if not w in python_stop_words]
+        clean_text = [w for w in clean_text if not w in ENGLISH_STOP_WORDS]
 
     # 6. Remove words that are only a single character in length
     if remove_one_char_words: clean_text = [w for w in clean_text if len(w)>1]

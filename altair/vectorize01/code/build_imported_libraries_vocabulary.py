@@ -1,5 +1,6 @@
 from redbaron import RedBaron
 import os
+import json
 from collections import defaultdict
 import pickle
 
@@ -69,33 +70,63 @@ def parse_import_statements(import_node_list, include_dotted_segments=False):
 
     return libraries
 
+def build_imported_libraries_vocabulary(script_folder, max_script_count=10000,vocab_size=500, min_count=2):
+    '''
+    Generates a dictionary of imported library calls to be used as the vocabulary in techniques that utilize bag of words.
+    Args:
+        script_folder (str): Folder location of corpus containing script files
+        max_script_count (int): the maximum number of code scripts to process in the script_folder
+        vocab_size (int): the maximum number of words to be used in the vocabulary (dimension of bag of words vector)
+        min_word_count (int): a word will be included in vocabulary if it appears at least min_count times in the corpus
+    Returns:
+        libraries_ordered_by_count (list): a list of size equal or less than max_vocab_size that contains the most frequent
+        normalized words in the corpus
+    '''
 
-def build_imported_libraries_vocabulary(script_folder, vocab_size=500, min_count=2):
     library_count = defaultdict(int)
+    counter = 0
 
-    # Build list of python files and process with red baron to identify imported libraries
+    # Retrieve files with script content and process with red baron to identify imported libraries
+    # Altair's JSON format uses the 'content' label for the script code
     for py_file in sorted(os.listdir(script_folder)):
+        if counter >= max_script_count: break
         fullpath = os.path.join(script_folder, py_file)
         with open(fullpath, "r") as py_file_contents:
-            try:
-                red = RedBaron(py_file_contents.read())
-                libraries = parse_import_statements(red.find_all("ImportNode"))
-                libraries |= parse_fromimport_statements(red.find_all("FromImportNode"))
-                for library in libraries: library_count[library] += 1
+            for line in py_file_contents:
+                counter += 1
+                parsed_json = json.loads(line)
 
-            except Exception as e:
-                logger.info("%s error encountered in %s; skipping file" % (e.__class__.__name__, py_file))
-                continue
+                try:
+                    red = RedBaron(parsed_json['content'])
+                    libraries = parse_import_statements(red.find_all("ImportNode"))
+                    libraries |= parse_fromimport_statements(red.find_all("FromImportNode"))
+                    for library in libraries: library_count[library] += 1
+
+                except Exception as e:
+                    logger.info("%s error encountered in %s; skipping file" % (e.__class__.__name__, py_file))
+
+                if counter >= max_script_count: break
 
     # Determine descending order for library based on count
-    library_by_count = [i[0] for i in sorted(library_count.items(), key=lambda x: (x[1], x[0]), reverse=True) if
+    libraries_ordered_by_count = [i[0] for i in sorted(library_count.items(), key=lambda x: (x[1], x[0]), reverse=True) if
                         i[1] > min_count]
 
     # Trim the vocabulary to the requested vocab_size
-    if len(library_by_count) >= vocab_size:
-        library_by_count = library_by_count[:vocab_size]
+    if len(libraries_ordered_by_count) >= vocab_size:
+        libraries_ordered_by_count = libraries_ordered_by_count[:vocab_size]
+    else:
+        logger.warning("Only %d libraries were observed using max_script_count=%d, max_vocab_size=%d and min_word_count=%d" % \
+            (len(libraries_ordered_by_count), max_script_count, max_vocab_size, min_word_count))
 
-    return library_by_count
+    return libraries_ordered_by_count
+
+def main(script_folder,vocab_pickle_filename,max_script_count,max_vocab_size,min_word_count):
+
+    imported_libraries_vocabulary = build_imported_libraries_vocabulary(script_folder,max_script_count,max_vocab_size,min_word_count)
+
+    logger.info("Saving imported libraries vocabulary pickle file at %s" % vocab_pickle_filename)
+    pickle.dump(imported_libraries_vocabulary, open(vocab_pickle_filename, "wb"))
+    logger.info("Imported libraries vocabulary pickle file saved at %s" % vocab_pickle_filename)
 
 if __name__ == "__main__":
     import argparse
@@ -105,24 +136,24 @@ if __name__ == "__main__":
     parser.add_argument("script_folder",
                         type=str,
                         help="Folder location of Python scripts")
-    parser.add_argument("pickle_filename",
+    parser.add_argument("vocab_pickle_filename",
                         type=str,
                         help="Output file name for pickle file containing vocabulary list")
 
     # Optional args
-    parser.add_argument("--vocab_size",
+    parser.add_argument("--max_script_count",
                         type=int,
-                        default=500,
+                        default=10000,
+                        help="Specify maximum number of code scripts to process (default = 10000")
+
+    parser.add_argument("--max_vocab_size",
+                        type=int,
+                        default=100,
                         help="Specify size of vocabulary, which will be Bag of Words dimension size (default = 5000)")
-    parser.add_argument("--min_count",
+    parser.add_argument("--min_word_count",
                     type=int,
                     default=2,
                     help="Minimum times a library is observed in corpus for the library to be included in vocabulary (default = 2)")
 
-    args = parser.parse_args()
-    imported_libraries_vocabulary = build_imported_libraries_vocabulary(args.script_folder, args.vocab_size, args.min_count)
-    if len(imported_libraries_vocabulary) < args.vocab_size:
-        logger.warning("Only %d libraries were observed using vocab_size=%d and min_count=%d" % (len(imported_libraries_vocabulary), args.vocab_size, args.min_count))
-    logger.info("Saving imported libraries vocabulary pickle file at %s" % args.pickle_filename)
-    pickle.dump(imported_libraries_vocabulary, open(args.pickle_filename, "wb"))
-    logger.info("Imported libraries vocabulary pickle file saved at %s" % args.pickle_filename)
+    args=parser.parse_args()
+    main(args.script_folder,args.vocab_pickle_filename,args.max_script_count,args.max_vocab_size,args.min_word_count)
