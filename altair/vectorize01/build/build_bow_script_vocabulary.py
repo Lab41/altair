@@ -25,7 +25,7 @@ def build_bow_script_vocabulary(script_folder, max_script_count=10000, vocab_siz
     counter = 0
 
     # Read file contents, extract code, normalize contents and count resulting tokens
-    # Altair's JSON format uses the 'content' label for thCoue script code
+    # Altair's JSON format uses the 'content' label for the script code
     for py_file in sorted(os.listdir(script_folder)):
         if counter >= max_script_count: break
         fullpath = os.path.join(script_folder, py_file)
