@@ -28,10 +28,9 @@ Jinja2==2.9.4
 jsonschema==2.5.1
 jupyter-client==4.4.0
 jupyter-core==4.2.1
-jupyter-nbgallery==0.2.4
+jupyter-nbgallery==0.2.3
 jupyterhub==0.5.0
 Keras==1.2.0
-langdetect==1.0.7
 llvmlite==0.14.0
 lxml==3.7.2
 MarkupSafe==0.23
@@ -83,7 +82,7 @@ SQLAlchemy==1.1.5
 statsmodels==0.6.1
 sympy==1.0
 tables==3.3.0
-tensorflow==0.11.0
+tensorflow==0.12.0
 terminado==0.6
 Theano==0.8.2
 toolz==0.7.2
