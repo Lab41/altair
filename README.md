@@ -1,5 +1,5 @@
 # Altair
-<img src="assets/altair_logo.png" width=300 height=300 alt="altair logo" />
+<img src="assets/altair_logo.png" width=500 height=300 alt="altair logo" />
 
 ## Assessing Source Code Similarity with Unsupervised Learning
 
