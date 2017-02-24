@@ -1,5 +1,6 @@
 import json
 import tqdm
+import numpy
 from multiprocessing import Pool, Queue
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import issparse
@@ -9,6 +10,7 @@ from altair.vectorize01.vectorizers.BowImportVectorizer import BowImportVectoriz
 from altair.vectorize01.vectorizers.Doc2VecVectorizer import Doc2VecVectorizer
 from altair.vectorize01.vectorizers.LDAVectorizer import LDAVectorizer
 from altair.vectorize01.vectorizers.TFIDFVectorizer import TFIDFVectorizer
+from altair.util.separate_code_and_comments import separate_code_and_comments
 
 features = None
 raw = None
@@ -19,7 +21,9 @@ def q_init(q):
 
 def score_performance(t):
     current_idx, v = t
-    pair_sims = cosine_similarity(v, features)
+    # sklearn throws deprecation warnings for 1d arrays so need to reshape v
+    pair_sims = cosine_similarity(numpy.array(v).reshape(1,-1), features)
+    # TODO: Set a minimum cosine similarity score for candidates?
     top_candidates = pair_sims[0].argsort()[-top_n-1:][::-1][1:]
 
     comp_id = raw[current_idx]["CompetitionId"]
@@ -54,15 +58,22 @@ def main(data_path, num_cores, top_n, vectorizer):
     import random
     raw = random.sample(raw, 2000)
     """
-
-    scripts = [script["ScriptContent"] for script in raw]
+    
+    # Strip out comments and add to scripts if it has code; otherwise remove it from raw list  
+    scripts = list()
+    for index,script in list(enumerate(raw)):
+        code, _ = separate_code_and_comments(script["ScriptContent"],script["ScriptTitle"])
+        if len(code)>0: 
+            scripts.append(code)
+        else:
+            raw.pop(index)
+    #scripts = [script["ScriptContent"] for script in raw]
 
     # Choose vectorizer
     print("Vectorizing documents...")
     #vectorizer.vectorizer.fit(scripts)
     features = vectorizer.vectorize_multi(scripts)
     features_dense = features.todense() if issparse(features) else features
-
     p = Pool(num_cores, q_init, [q])
     print("Calculating pairwise similarities + scores...")
     for _ in tqdm.tqdm(p.imap_unordered(score_performance, list(enumerate(features_dense))), total=len(features_dense)):
@@ -198,7 +209,7 @@ if __name__ == "__main__":
     num_cores = args.pop("num_cores")
     top_n = args.pop("top_n")
 
-    for argname, val in args.iteritems():
+    for argname, val in args.items():
         if "kwargs" in argname and val is not None:
             args[argname] = parse_kwargs(val)
 

@@ -17,8 +17,8 @@ class TFIDFVectorizer(Vectorizer):
 
     def vectorize(self, document):
         counts = self.vectorizer.transform([document])
-        return self.transformer.transform(counts)
+        return self.transformer.fit_transform(counts)
 
     def vectorize_multi(self, documents):
         counts = self.vectorizer.transform(documents)
-        return self.transformer.transform(counts)
+        return self.transformer.fit_transform(counts)
