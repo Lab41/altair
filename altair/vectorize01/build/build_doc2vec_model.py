@@ -64,10 +64,14 @@ def main(script_folder, model_pickle_filename, training_algorithm, num_cores, ep
                 if len(code) == 0:
                     continue
                 else:
-                    tokenized_code = normalize_text(code, True, True, True, True)
+                    tokenized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True)
                     doc2vec_tagged_documents.append(doc2vec.TaggedDocument(tokenized_code, [str(py_file)]))
 
     doc2vec_model = build_doc2vec_model(doc2vec_tagged_documents,training_algorithm,num_cores,epochs,vector_size,window)
+
+    # Per https://groups.google.com/forum/#!topic/gensim/w5RJiKh9x3A, model.docvecs can be discarded for inference only use
+    # However, initial testing did not have tangible impact on pickle size on model 
+    # doc2vec_model.docvecs = [] 
 
     logger.info("saving doc2vec model in a pickle file at %s" % model_pickle_filename)
     pickle.dump(doc2vec_model, open(model_pickle_filename, "wb"))
@@ -91,7 +95,7 @@ if __name__ == "__main__":
     parser.add_argument("--training_algorithm",
                         type=int,
                         default=2,
-                        help="Training algorithm is ‘distributed memory’ (PV-DM)=1 or distributed bag of words (PV-DBOW)=2 (default=2)")
+                        help="Training algorithm is 'distributed memory' (PV-DM)=1 or distributed bag of words (PV-DBOW)=2 (default=2)")
 
     parser.add_argument("--num_cores",
                         type=int,
@@ -111,7 +115,7 @@ if __name__ == "__main__":
     parser.add_argument("--window",
                         type=int,
                         default=5,
-                        help="Maximum distance between the predicted word and context words used for prediction within a document")
+                        help="Maximum distance between the predicted word and context words used for prediction within a document (default=5)")
 
     parser.add_argument("--max_script_count",
                         type=int,
