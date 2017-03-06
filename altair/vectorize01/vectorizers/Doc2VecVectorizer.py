@@ -15,12 +15,14 @@ class Doc2VecVectorizer(Vectorizer):
         self.infer_kwargs = infer_kwargs
 
     def vectorize(self, document):
-        normalized_doc = normalize_text(document, **self.normalizer_kwargs)
+        # Doc2Vec expects a list of words
+        normalized_doc = normalize_text(document, return_list=True, **self.normalizer_kwargs)
         return self.model.infer_vector(normalized_doc, **self.infer_kwargs)
 
     def vectorize_multi(self, documents):
         vectorized = []
         for document in documents:
-            normalized_doc = normalize_text(document, **self.normalizer_kwargs)
+            # Doc2Vec expects a list of words
+            normalized_doc = normalize_text(document, return_list=True, **self.normalizer_kwargs)
             vectorized.append(self.model.infer_vector(normalized_doc, **self.infer_kwargs))
         return vectorized

@@ -9,6 +9,7 @@ logger = getLogger(__name__)
 # Regular expressions to remove web links and only keep letter characters
 link_re = re.compile(r'\/{2}[\d\w-]+(\.[\d\w-]+)*(?:(?:\/[^\s/]*))*')
 letter_re = re.compile(r"[^a-zA-Z]")
+letter_number_re = re.compile(r"[^0-9a-zA-Z]")
 
 # Use Python 3.0 keyword list (keyword.kwlist) in lower case as stop word candidates for code
 python_stop_words = ['false', 'none', 'true', 'and', 'as', 'assert', 'break', 'class', 'continue', 'def', \
@@ -40,8 +41,11 @@ def normalize_text(raw_text, remove_stop_words=True, only_letters=True, return_l
         warnings.filterwarnings('ignore', category=UserWarning)
         clean_text = BeautifulSoup(clean_text, "lxml").get_text()
 
-    # 3. Remove non-letters
-    if only_letters: clean_text = letter_re.sub(" ", clean_text)
+    # 3. Only keep letters or keep letters and numbers
+    if only_letters: 
+        clean_text = letter_re.sub(" ", clean_text)
+    else:
+        clean_text = letter_number_re.sub(" ",clean_text)
 
     # 4. Convert to lower case, split into individual words
     clean_text = clean_text.lower().split()

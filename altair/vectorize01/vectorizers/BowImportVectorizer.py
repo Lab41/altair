@@ -4,6 +4,10 @@ from sklearn.feature_extraction.text import CountVectorizer
 from altair.vectorize01.vectorizers.Vectorizer import Vectorizer
 from altair.vectorize01.build.build_imported_libraries_vocabulary import parse_fromimport_statements, parse_import_statements
 
+from altair.util.log import getLogger
+
+logger = getLogger(__name__)
+
 class BowImportVectorizer(Vectorizer):
     def __init__(self, pkl_libraries, vectorizer_kwargs=None):
         if not vectorizer_kwargs:
@@ -15,9 +19,14 @@ class BowImportVectorizer(Vectorizer):
         self.vectorizer = CountVectorizer(**vectorizer_kwargs)
 
     def _extract_libraries(self, document):
-        red = RedBaron(document)
-        libraries = parse_import_statements(red.find_all("ImportNode"))
-        libraries |= parse_fromimport_statements(red.find_all("FromImportNode"))
+        try:
+            red = RedBaron(document)
+            libraries = parse_import_statements(red.find_all("ImportNode"))
+            libraries |= parse_fromimport_statements(red.find_all("FromImportNode"))
+        # TODO: Skip document and remove from raw list if red baron fails parsing 
+        except:
+            libraries = set()
+            logger.info("Red baron error;continuing")
         return " ".join(libraries)
 
     def vectorize(self, document):

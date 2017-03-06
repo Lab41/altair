@@ -20,5 +20,5 @@ class LDAVectorizer(Vectorizer):
         return self.model.transform(counts)[0]
 
     def vectorize_multi(self, documents):
-        counts = self.vectorizer.transform([documents])
-        return self.model.transform(counts)[0]
+        counts = self.vectorizer.transform(documents)
+        return self.model.transform(counts)
