@@ -15,14 +15,18 @@ class Doc2VecVectorizer(Vectorizer):
         self.infer_kwargs = infer_kwargs
 
     def vectorize(self, document):
-        # Doc2Vec expects a list of words
-        normalized_doc = normalize_text(document, return_list=True, **self.normalizer_kwargs)
+        # Doc2Vec expects a list of words that includes stop words
+        normalized_doc = normalize_text(document, remove_stop_words=False, only_letters=False, return_list=True, **self.normalizer_kwargs)
+        # Doc2Vec requires a defined seed for deterministic results when calling infer_vector
+        self.model.random.seed(0)
         return self.model.infer_vector(normalized_doc, **self.infer_kwargs)
 
     def vectorize_multi(self, documents):
         vectorized = []
         for document in documents:
-            # Doc2Vec expects a list of words
-            normalized_doc = normalize_text(document, return_list=True, **self.normalizer_kwargs)
+            # Doc2Vec expects a list of words that includes stop words
+            normalized_doc = normalize_text(document, remove_stop_words=False, only_letters=False, return_list=True, **self.normalizer_kwargs)
+            # Doc2Vec requires a defined seed for deterministic results when calling infer_vector
+            self.model.random.seed(0)
             vectorized.append(self.model.infer_vector(normalized_doc, **self.infer_kwargs))
         return vectorized
