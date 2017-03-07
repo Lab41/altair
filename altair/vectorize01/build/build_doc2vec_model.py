@@ -32,7 +32,7 @@ def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=
     '''
 
     # build Doc2Vec's vocab
-    doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=1, iter=20, dbow_words=1, workers=num_cores)
+    doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=10, iter=20, dbow_words=1, workers=num_cores)
     doc2vec_model.build_vocab(doc2vec_tagged_documents)
 
     # run training epochs while shuffling data and lowering learning rate (alpha)
