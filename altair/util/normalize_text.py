@@ -32,33 +32,37 @@ def normalize_text(raw_text, remove_stop_words=True, only_letters=True, return_l
         clean_text: Either a string or a list of words that has been filtered based on function parameters.
 
     '''
-    # 1. Remove web links
+    # Remove web links
     clean_text = link_re.sub('', raw_text)
 
-    # 2. Remove HTML
+    # Remove HTML
     # Suppress UserWarnings from BeautifulSoup due to text with tech info (ex: code, directory structure)
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', category=UserWarning)
         clean_text = BeautifulSoup(clean_text, "lxml").get_text()
 
-    # 3. Only keep letters or keep letters and numbers
+    # Only keep letters or keep letters and numbers
     if only_letters: 
         clean_text = letter_re.sub(" ", clean_text)
     else:
         clean_text = letter_number_re.sub(" ",clean_text)
 
-    # 4. Convert to lower case, split into individual words
+    # Convert to lower case, split into individual words
     clean_text = clean_text.lower().split()
 
-    # 5. Remove stop words
+    # If numbers are allowed in words, remove candidate words that only contain numbers
+    if not only_letters:
+        clean_text = [w for w in clean_text if not all(i.isdigit() for i in w)]
+
+    # Remove stop words
     if remove_stop_words:
         clean_text = [w for w in clean_text if not w in python_stop_words]
         clean_text = [w for w in clean_text if not w in ENGLISH_STOP_WORDS]
 
-    # 6. Remove words that are only a single character in length
+    # Remove words that are only a single character in length
     if remove_one_char_words: clean_text = [w for w in clean_text if len(w)>1]
 
-    # 7. Return as string or list based on parameters
+    # Return as string or list based on parameters
     if return_list:
         return clean_text
     else:
