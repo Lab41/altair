@@ -37,7 +37,7 @@ def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=
 
     # run training epochs while shuffling data and lowering learning rate (alpha)
     for i in range(epochs):
-        logger.info("starting code epoch %d" % i)
+        logger.info("starting code epoch %d" % int(i+1))
         doc2vec_model.train(doc2vec_tagged_documents)
         doc2vec_model.alpha -= 0.002
         shuffle(doc2vec_tagged_documents)
@@ -72,6 +72,11 @@ def main(script_folder, model_pickle_filename, training_algorithm, num_cores, ep
     # Per https://groups.google.com/forum/#!topic/gensim/w5RJiKh9x3A, model.docvecs can be discarded for inference only use
     # However, initial testing did not have tangible impact on pickle size on model 
     # doc2vec_model.docvecs = [] 
+
+    # Per http://radimrehurek.com/gensim/models/doc2vec.html, delete_temporary_training_data reduces model size
+    # If keep_doctags_vectors is set to false, most_similar, similarity, sims is no longer available
+    # If keep_inference is set to false, infer_vector on a new document is no longer possible
+    doc2vec_model.delete_temporary_training_data(keep_doctags_vectors=False, keep_inference=True)
 
     logger.info("saving doc2vec model in a pickle file at %s" % model_pickle_filename)
     pickle.dump(doc2vec_model, open(model_pickle_filename, "wb"))
