@@ -20,8 +20,8 @@ def separate_code_and_comments(script, script_id):
     # Tokenize will throw syntax errors (ex: IndentationError)
     try:
         token_list = [x for x in tokenize.generate_tokens(io_obj.readline)]
-    except:
-        logger.info("Error tokenizing %s; continuing" % script_id)
+    except Exception as e:
+        # logger.info("%s in %s; continuing" % (e.__class__.__name__, script_id))
         return "",""
 
     for tok in token_list:

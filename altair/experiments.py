@@ -1,130 +1,29 @@
-import json
-import tqdm
-import numpy
-from multiprocessing import Pool, Queue
-from sklearn.metrics.pairwise import cosine_similarity
-from scipy.sparse import issparse
+'''
+Conducts an experiment on Altair's evaluation pipeline using Sacred
+The output is recorded by Sacred if environment variable MONGO_DB_URI is set
+'''
 
+import argparse
+import os
+from evaluation import main as altair_evaluation
 from altair.vectorize01.vectorizers.BowAllVectorizer import BowAllVectorizer
 from altair.vectorize01.vectorizers.BowImportVectorizer import BowImportVectorizer
 from altair.vectorize01.vectorizers.Doc2VecVectorizer import Doc2VecVectorizer
 from altair.vectorize01.vectorizers.LDAVectorizer import LDAVectorizer
 from altair.vectorize01.vectorizers.TFIDFVectorizer import TFIDFVectorizer
-from altair.util.separate_code_and_comments import separate_code_and_comments
 
-features = None
-raw = None
-q = Queue()
+from sacred import Experiment
+from sacred.observers import MongoObserver
+from sacred.initialize import Scaffold
 
-def q_init(q):
-    score_performance.q = q
+# Declare Sacred Experiment
+ex = Experiment('Testing Altair Evaluation')
 
-def score_performance(t):
-    current_idx, v = t
-    # sklearn throws deprecation warnings for 1d arrays so need to reshape v
-    pair_sims = cosine_similarity(numpy.array(v).reshape(1,-1), features)
-    # TODO: Set a minimum cosine similarity score for candidates?
-    top_candidates = pair_sims[0].argsort()[-top_n-1:][::-1][1:]
+def run_model():
+    return altair_evaluation(data_path=data_path,num_cores=num_cores,top_n_param=top_n,vectorizer=vectorizer)
 
-    comp_id = raw[current_idx]["CompetitionId"]
-    candidate_ids = [raw[candidate_idx]["CompetitionId"] for candidate_idx in top_candidates]
-    scoring = [candidate_id == comp_id for candidate_id in candidate_ids]
-
-    top_1_score = int(scoring[0])
-    top_n_any_score = int(any(scoring))
-    top_n_all_score = int(all(scoring))
-    score_performance.q.put((top_1_score, top_n_any_score, top_n_all_score))
-
-def main(data_path, num_cores, top_n_param, vectorizer):
-    global raw
-    global features
-    global q
-
-    # Patch for error thrown by score_performance on declaration of top_n
-    global top_n
-    top_n = top_n_param
-
-    raw = read_data(data_path)
-
-    """
-    # Remove items where competition IDs are in:
-    # PyCon2015 Tutorial (#4353)
-    # Word2Vec NLP Tutorial (#3971)
-    filter_comp_ids = ["4353", "3971"]
-    idxs_to_remove = set()
-    for idx, r in enumerate(raw):
-        if r["CompetitionId"] in filter_comp_ids:
-            idxs_to_remove.add(idx)
-    raw = [r for idx, r in enumerate(raw) if idx not in idxs_to_remove]
-    """
-    """
-    # Take a random sample from raw.
-    import random
-    raw = random.sample(raw, 2000)
-    """
-    
-    # Strip out comments and add to scripts if it has code; otherwise remove it from raw list  
-    scripts = list()
-    for index,script in list(enumerate(raw)):
-        code, _ = separate_code_and_comments(script["ScriptContent"],script["ScriptTitle"])
-        if len(code)>0: 
-            scripts.append(code)
-        else:
-            raw.pop(index)
-    #scripts = [script["ScriptContent"] for script in raw]
-
-    # Choose vectorizer
-    print("Vectorizing documents...")
-    #vectorizer.vectorizer.fit(scripts)
-    features = vectorizer.vectorize_multi(scripts)
-    features_dense = features.todense() if issparse(features) else features
-    p = Pool(num_cores, q_init, [q])
-    print("Calculating pairwise similarities + scores...")
-    for _ in tqdm.tqdm(p.imap_unordered(score_performance, list(enumerate(features_dense))), total=len(features_dense)):
-        pass
-
-    score_top_1 = 0
-    score_top_n_any = 0
-    score_top_n_all = 0
-
-    while not q.empty():
-        top_1, top_n_any, top_n_all = q.get()
-
-        score_top_1 += top_1
-        score_top_n_any += top_n_any
-        score_top_n_all += top_n_all
-
-    top_1_accuracy = score_top_1 / float(len(raw))
-    top_n_any_accuracy = score_top_n_any / float(len(raw))
-    top_n_all_accuracy = score_top_n_all / float(len(raw))
-
-    print("Top 1: %s" % top_1_accuracy)
-    print("Top N (Any): %s" % top_n_any_accuracy)
-    print("Top N (All): %s" % top_n_all_accuracy)
-    print("(N = %s)" % top_n)
-
-    return {"top_1_accuracy":top_1_accuracy, "top_n_any_accuracy":top_n_any_accuracy, "top_n_all_accuracy":top_n_all_accuracy, "top_n":top_n}
-
-def read_data(data_path):
-    raw = []
-    print("Reading data from: %s" % data_path)
-    with open(data_path, "r") as f:
-        for line in f:
-            raw.append(json.loads(line))
-    return raw
-
-def parse_kwargs(kwargs_str):
-    kv_pairs = kwargs_str.split(";")
-    kwargs = {}
-    for kv_pair in kv_pairs:
-        k, v = kv_pair.split("=")
-        kwargs[k] = v
-    return kwargs
-
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Calculate evaluation metrics (Top 1, Top N Any, Top N All).')
+def main():
+    parser = argparse.ArgumentParser(description='Calculate Altair evaluation metrics (Top 1, Top N Any, Top N All) with Sacred.')
 
     # Required args
     parser.add_argument("data_path",
@@ -142,7 +41,6 @@ if __name__ == "__main__":
                         help="N for calculating Top N (Any) and Top N (All).")
 
     subparsers = parser.add_subparsers(help="Subparsers per vectorizer type.")
-
     ###
 
     bow_all = subparsers.add_parser("bow_all",
@@ -215,8 +113,16 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args = args.__dict__
 
+    # Make dictionary to pass as Sacred configuration variables (must be JSON serializable)
+    import copy
+    configs = copy.copy(args)
+    configs.pop("vectorizer_cls")
+
+    global data_path
     data_path = args.pop("data_path")
+    global num_cores
     num_cores = args.pop("num_cores")
+    global top_n
     top_n = args.pop("top_n")
 
     for argname, val in args.items():
@@ -224,6 +130,39 @@ if __name__ == "__main__":
             args[argname] = parse_kwargs(val)
 
     vectorizer_cls = args.pop("vectorizer_cls")
+    global vectorizer
     vectorizer = vectorizer_cls(**args)
 
-    main(data_path, num_cores, top_n, vectorizer)
+    # Add string descriptor of vectorizer to configs dict given Sacred's JSON serializable requirement
+    if vectorizer_cls == BowAllVectorizer:
+        configs["vectorizer_string"] = 'bow_all'
+    elif vectorizer_cls == BowImportVectorizer:
+        configs["vectorizer_string"] = 'bow_import'
+    elif vectorizer_cls == TFIDFVectorizer:
+        configs["vectorizer_string"] = 'tfidf'
+    elif vectorizer_cls == LDAVectorizer:
+        configs["vectorizer_string"] = 'lda'
+    elif vectorizer_cls == Doc2VecVectorizer:
+        configs["vectorizer_string"] = 'doc2vec'
+    else:
+        print("Unknown vectorizer; quitting")
+        quit()
+
+    # Monkey patch to avoid having to declare all our variables
+    def noop(item):
+        pass
+
+    Scaffold._warn_about_suspicious_changes = noop
+
+    # Add mongo observer for Sacred
+    ex.observers.append(MongoObserver.create(url=os.environ['MONGO_DB_URI'], db_name='testing_altair_experiment'))
+
+    # Define the entrypoint
+    ex.main(lambda: run_model())
+
+    # Tell sacred about config items so they are logged
+    ex.run(config_updates=configs)
+
+if __name__ == "__main__": main()
+
+
