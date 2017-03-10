@@ -47,7 +47,7 @@ def main(script_folder,topics,vocab_pickle_filename,model_pickle_filename,max_sc
                 if len(code) == 0:
                     continue
                 else:
-                    normalized_code = normalize_text(code, True, True, False, True)
+                    normalized_code = normalize_text(code, remove_stop_words=True, only_letters=False, return_list=False, remove_one_char_words=True)
                     code_scripts_list.append(normalized_code)
 
     lda_model = build_lda_model(code_scripts_list,topics,vocab,use_binary)

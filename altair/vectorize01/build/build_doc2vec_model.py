@@ -64,7 +64,7 @@ def main(script_folder, model_pickle_filename, training_algorithm, num_cores, ep
                 if len(code) == 0:
                     continue
                 else:
-                    tokenized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True)
+                    tokenized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True, remove_one_char_words=True)
                     doc2vec_tagged_documents.append(doc2vec.TaggedDocument(tokenized_code, [str(py_file)]))
 
     doc2vec_model = build_doc2vec_model(doc2vec_tagged_documents,training_algorithm,num_cores,epochs,vector_size,window)

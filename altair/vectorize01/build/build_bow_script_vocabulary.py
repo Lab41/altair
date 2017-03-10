@@ -34,7 +34,7 @@ def build_bow_script_vocabulary(script_folder, max_script_count=10000, max_vocab
                 counter += 1
                 parsed_json = json.loads(line)
                 code, comments = separate_code_and_comments(parsed_json['content'],py_file)
-                normalized_script = normalize_text(code, True, True, True, True)
+                normalized_script = normalize_text(code, remove_stop_words=True, only_letters=False, return_list=True, remove_one_char_words=True)
                 for token in normalized_script: word_count[token] += 1
                 if counter >= max_script_count: break
 
