@@ -9,7 +9,7 @@ from altair.util.log import getLogger
 
 logger = getLogger(__name__)
 
-def build_bow_script_vocabulary(script_folder, max_script_count=10000, vocab_size=5000, min_count=2):
+def build_bow_script_vocabulary(script_folder, max_script_count=10000, max_vocab_size=5000, min_word_count=2):
     '''
     Generates a dictionary of words to be used as the vocabulary in techniques that utilize bag of words.
     Args:
@@ -40,11 +40,11 @@ def build_bow_script_vocabulary(script_folder, max_script_count=10000, vocab_siz
 
     # Determine descending order for library based on count and restricted by min_count threshold
     words_ordered_by_count = [i[0] for i in sorted(word_count.items(), key=lambda x: (x[1], x[0]), reverse=True) if
-                              i[1] > min_count]
+                              i[1] > min_word_count]
 
     # Trim the vocabulary to the requested vocab_size
-    if len(words_ordered_by_count) >= vocab_size:
-        words_ordered_by_count = words_ordered_by_count[:vocab_size]
+    if len(words_ordered_by_count) >= max_vocab_size:
+        words_ordered_by_count = words_ordered_by_count[:max_vocab_size]
     else:
         logger.warning("Only %d words were observed using max_script_count=%d, max_vocab_size=%d and min_word_count=%d" % \
                        (len(words_ordered_by_count),max_script_count, max_vocab_size,min_word_count))
