@@ -137,6 +137,7 @@ dependencies:
   - pymongo==3.4.0
   - redbaron==0.6.3
   - rply==0.7.4
+  - sacred==0.6.10
   - smart-open==1.3.5
   - sqlalchemy==1.1.5
   - tables==3.3.0
