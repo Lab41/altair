@@ -17,7 +17,7 @@ from sacred.observers import MongoObserver
 from sacred.initialize import Scaffold
 
 # Declare Sacred Experiment
-ex = Experiment('Testing Altair Evaluation')
+ex = Experiment('altair_baseline_metrics')
 
 def run_model():
     return altair_evaluation(data_path=data_path,num_cores=num_cores,top_n_param=top_n,vectorizer=vectorizer)
@@ -155,7 +155,7 @@ def main():
     Scaffold._warn_about_suspicious_changes = noop
 
     # Add mongo observer for Sacred
-    ex.observers.append(MongoObserver.create(url=os.environ['MONGO_DB_URI'], db_name='testing_altair_experiment'))
+    ex.observers.append(MongoObserver.create(url=os.environ['MONGO_DB_URI'], db_name='altair_baseline_metrics'))
 
     # Define the entrypoint
     ex.main(lambda: run_model())
