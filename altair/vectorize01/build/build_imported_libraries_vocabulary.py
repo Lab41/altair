@@ -103,7 +103,8 @@ def build_imported_libraries_vocabulary(script_folder, max_script_count=10000,vo
                     for library in libraries: library_count[library] += 1
 
                 except Exception as e:
-                    logger.info("%s error encountered in %s; skipping file" % (e.__class__.__name__, py_file))
+                    #logger.info("%s error encountered in %s; skipping file" % (e.__class__.__name__, py_file))
+                    continue
 
                 if counter >= max_script_count: break
 
@@ -116,7 +117,7 @@ def build_imported_libraries_vocabulary(script_folder, max_script_count=10000,vo
         libraries_ordered_by_count = libraries_ordered_by_count[:vocab_size]
     else:
         logger.warning("Only %d libraries were observed using max_script_count=%d, max_vocab_size=%d and min_word_count=%d" % \
-            (len(libraries_ordered_by_count), max_script_count, max_vocab_size, min_word_count))
+            (len(libraries_ordered_by_count), max_script_count, vocab_size, min_count))
 
     return libraries_ordered_by_count
 
