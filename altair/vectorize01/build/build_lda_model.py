@@ -52,7 +52,7 @@ def main(script_folder,topics,vocab_pickle_filename,model_pickle_filename,max_sc
 
     lda_model = build_lda_model(code_scripts_list,topics,vocab,use_binary)
 
-    logger.info("Saving LDA model in a pickle file at %s" % model_pickle_filename)
+    #logger.info("Saving LDA model in a pickle file at %s" % model_pickle_filename)
     pickle.dump(lda_model, open(model_pickle_filename, "wb"))
     logger.info("LDA model pickle file saved at %s" % model_pickle_filename)
 

@@ -124,7 +124,7 @@ def main(script_folder,vocab_pickle_filename,max_script_count,max_vocab_size,min
 
     imported_libraries_vocabulary = build_imported_libraries_vocabulary(script_folder,max_script_count,max_vocab_size,min_word_count)
 
-    logger.info("Saving imported libraries vocabulary pickle file at %s" % vocab_pickle_filename)
+    #logger.info("Saving imported libraries vocabulary pickle file at %s" % vocab_pickle_filename)
     pickle.dump(imported_libraries_vocabulary, open(vocab_pickle_filename, "wb"))
     logger.info("Imported libraries vocabulary pickle file saved at %s" % vocab_pickle_filename)
 

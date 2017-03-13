@@ -55,7 +55,7 @@ def main(script_folder,vocab_pickle_filename,max_script_count,max_vocab_size,min
 
     bow_script_vocabulary = build_bow_script_vocabulary(script_folder, max_script_count, max_vocab_size, min_word_count)
 
-    logger.info("Saving bag of words vocabulary pickle file at %s" % vocab_pickle_filename)
+    #logger.info("Saving bag of words vocabulary pickle file at %s" % vocab_pickle_filename)
     pickle.dump(bow_script_vocabulary, open(vocab_pickle_filename, "wb"))
     logger.info("Bag of words vocabulary pickle file saved at %s" % vocab_pickle_filename)
 

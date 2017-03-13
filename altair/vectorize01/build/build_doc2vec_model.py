@@ -32,7 +32,7 @@ def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=
     '''
 
     # build Doc2Vec's vocab
-    doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=10, iter=20, dbow_words=1, workers=num_cores)
+    doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=10, iter=20, dbow_words=1, workers=num_cores, alpha=0.05, min_alpha=0.001)
     doc2vec_model.build_vocab(doc2vec_tagged_documents)
 
     # run training epochs while shuffling data and lowering learning rate (alpha)
@@ -65,20 +65,20 @@ def main(script_folder, model_pickle_filename, training_algorithm, num_cores, ep
                     continue
                 else:
                     tokenized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True, remove_one_char_words=True)
-                    doc2vec_tagged_documents.append(doc2vec.TaggedDocument(tokenized_code, [str(py_file)]))
+                    doc2vec_tagged_documents.append(doc2vec.TaggedDocument(tokenized_code, [counter]))
 
     doc2vec_model = build_doc2vec_model(doc2vec_tagged_documents,training_algorithm,num_cores,epochs,vector_size,window)
-
-    # Per https://groups.google.com/forum/#!topic/gensim/w5RJiKh9x3A, model.docvecs can be discarded for inference only use
-    # However, initial testing did not have tangible impact on pickle size on model 
-    # doc2vec_model.docvecs = [] 
 
     # Per http://radimrehurek.com/gensim/models/doc2vec.html, delete_temporary_training_data reduces model size
     # If keep_doctags_vectors is set to false, most_similar, similarity, sims is no longer available
     # If keep_inference is set to false, infer_vector on a new document is no longer possible
     doc2vec_model.delete_temporary_training_data(keep_doctags_vectors=False, keep_inference=True)
 
-    logger.info("saving doc2vec model in a pickle file at %s" % model_pickle_filename)
+    # Per http://radimrehurek.com/gensim/models/doc2vec.html, doc2vec has its own  method for saving/loading models
+    # doc2vec_model.save(model_pickle_filename)
+    # doc2vec_model = doc2vec.Doc2Vec.load(model_pickle_filename)
+
+    #logger.info("saving doc2vec model in a pickle file at %s" % model_pickle_filename)
     pickle.dump(doc2vec_model, open(model_pickle_filename, "wb"))
     logger.info("doc2vec model pickle file saved at %s" % model_pickle_filename)
 

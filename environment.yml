@@ -21,7 +21,6 @@ dependencies:
 - filelock=2.0.7=py35_0
 - fontconfig=2.12.1=2
 - freetype=2.5.5=2
-- gensim=0.12.4=np111py35_0
 - glib=2.50.2=1
 - gst-plugins-base=1.8.0=0
 - gstreamer=1.8.0=0
@@ -121,6 +120,7 @@ dependencies:
   - "--editable=git+git://github.com/mila-udem/blocks.git@stable#egg=blocks"
   - fuel==0.2.0
   - ganymede==0.1
+  - gensim==1.0.1
   - ipython-genutils==0.1.0
   - jupyter-client==4.4.0
   - jupyter-core==4.2.1
