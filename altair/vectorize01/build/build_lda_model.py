@@ -10,19 +10,19 @@ from altair.util.log import getLogger
 
 logger = getLogger(__name__)
 
-def build_lda_model(code_scripts_list,topics,vocab,use_binary=False):
+def build_lda_model(code_scripts_list,topics,vocab,use_binary=False,n_jobs=1):
 
     # Vectorize the python scripts with bag of words
     bow_model = CountVectorizer(analyzer="word", vocabulary=vocab, binary=use_binary)
     bow_vector_values = bow_model.transform(code_scripts_list).toarray()
 
     # Train/Fit LDA
-    lda_model = LatentDirichletAllocation(n_topics=topics,learning_method="online")
+    lda_model = LatentDirichletAllocation(n_topics=topics,learning_method="online",random_state=0,n_jobs=1)
     lda_model.fit(bow_vector_values)
 
     return lda_model
 
-def main(script_folder,topics,vocab_pickle_filename,model_pickle_filename,max_script_count,use_binary):
+def main(script_folder,topics,vocab_pickle_filename,model_pickle_filename,max_script_count,use_binary,n_jobs):
 
     # Retrieve existing vocabulary
     if vocab_pickle_filename is not None:
@@ -50,9 +50,9 @@ def main(script_folder,topics,vocab_pickle_filename,model_pickle_filename,max_sc
                     normalized_code = normalize_text(code, remove_stop_words=True, only_letters=False, return_list=False, remove_one_char_words=True)
                     code_scripts_list.append(normalized_code)
 
-    lda_model = build_lda_model(code_scripts_list,topics,vocab,use_binary)
+    lda_model = build_lda_model(code_scripts_list,topics,vocab,use_binary,n_jobs)
 
-    logger.info("Saving LDA model in a pickle file at %s" % model_pickle_filename)
+    #logger.info("Saving LDA model in a pickle file at %s" % model_pickle_filename)
     pickle.dump(lda_model, open(model_pickle_filename, "wb"))
     logger.info("LDA model pickle file saved at %s" % model_pickle_filename)
 
@@ -89,5 +89,10 @@ if __name__ == "__main__":
                     action="store_true",
                     help="Specify whether LDA is provided binary Bag of Words representations (default=False)")
 
+    parser.add_argument("--n_jobs",
+                    type=int,
+                    default=1,
+                    help="Flag for multiprocessing where -1 uses all CPUs and 1 uses 1 CPU (default=1)")
+
     args = parser.parse_args()
-    main(args.script_folder,args.topics,args.vocab_pickle_filename,args.model_pickle_filename,args.max_script_count,args.use_binary)
+    main(args.script_folder,args.topics,args.vocab_pickle_filename,args.model_pickle_filename,args.max_script_count,args.use_binary,args.n_jobs)

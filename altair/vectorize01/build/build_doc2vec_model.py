@@ -10,7 +10,7 @@ from altair.util.log import getLogger
 
 logger = getLogger(__name__)
 
-def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=1,epochs=5,vector_size=300,window=5):
+def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=1,epochs=5,vector_size=300,window=5,min_count=10,alpha=0.05):
 
     '''
     Doc2Vec parameters
@@ -32,7 +32,7 @@ def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=
     '''
 
     # build Doc2Vec's vocab
-    doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=10, iter=20, dbow_words=1, workers=num_cores)
+    doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=min_count, iter=20, dbow_words=1, workers=num_cores, alpha=alpha, min_alpha=0.001)
     doc2vec_model.build_vocab(doc2vec_tagged_documents)
 
     # run training epochs while shuffling data and lowering learning rate (alpha)
@@ -44,7 +44,7 @@ def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=
 
     return doc2vec_model
 
-def main(script_folder, model_pickle_filename, training_algorithm, num_cores, epochs, vector_size, window, max_script_count):
+def main(script_folder, model_pickle_filename, training_algorithm, num_cores, epochs, vector_size, window, min_count, alpha, max_script_count):
 
     doc2vec_tagged_documents = list()
     counter = 0
@@ -65,20 +65,20 @@ def main(script_folder, model_pickle_filename, training_algorithm, num_cores, ep
                     continue
                 else:
                     tokenized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True, remove_one_char_words=True)
-                    doc2vec_tagged_documents.append(doc2vec.TaggedDocument(tokenized_code, [str(py_file)]))
+                    doc2vec_tagged_documents.append(doc2vec.TaggedDocument(tokenized_code, [counter]))
 
-    doc2vec_model = build_doc2vec_model(doc2vec_tagged_documents,training_algorithm,num_cores,epochs,vector_size,window)
-
-    # Per https://groups.google.com/forum/#!topic/gensim/w5RJiKh9x3A, model.docvecs can be discarded for inference only use
-    # However, initial testing did not have tangible impact on pickle size on model 
-    # doc2vec_model.docvecs = [] 
+    doc2vec_model = build_doc2vec_model(doc2vec_tagged_documents,training_algorithm,num_cores,epochs,vector_size,window,min_count,alpha)
 
     # Per http://radimrehurek.com/gensim/models/doc2vec.html, delete_temporary_training_data reduces model size
     # If keep_doctags_vectors is set to false, most_similar, similarity, sims is no longer available
     # If keep_inference is set to false, infer_vector on a new document is no longer possible
     doc2vec_model.delete_temporary_training_data(keep_doctags_vectors=False, keep_inference=True)
 
-    logger.info("saving doc2vec model in a pickle file at %s" % model_pickle_filename)
+    # Per http://radimrehurek.com/gensim/models/doc2vec.html, doc2vec has its own  method for saving/loading models
+    # doc2vec_model.save(model_pickle_filename)
+    # doc2vec_model = doc2vec.Doc2Vec.load(model_pickle_filename)
+
+    #logger.info("saving doc2vec model in a pickle file at %s" % model_pickle_filename)
     pickle.dump(doc2vec_model, open(model_pickle_filename, "wb"))
     logger.info("doc2vec model pickle file saved at %s" % model_pickle_filename)
 
@@ -122,10 +122,20 @@ if __name__ == "__main__":
                         default=5,
                         help="Maximum distance between the predicted word and context words used for prediction within a document (default=5)")
 
+    parser.add_argument("--min_count",
+                        type=int,
+                        default=10,
+                        help="Minimum number of document appearances for an associated word to be included in vocabulary (default=10)")
+
+    parser.add_argument("--alpha",
+                        type=float,
+                        default=0.05,
+                        help="Initial learning rate for model (default=0.05)")
+
     parser.add_argument("--max_script_count",
                         type=int,
                         default=10000,
                         help="Specify maximum number of code scripts to process (default = 10000)")
 
     args = parser.parse_args()
-    main(args.script_folder, args.model_pickle_filename, args.training_algorithm, args.num_cores, args.epochs, args.vector_size, args.window, args.max_script_count)
+    main(args.script_folder, args.model_pickle_filename, args.training_algorithm, args.num_cores, args.epochs, args.vector_size, args.window, args.min_count, args.alpha, args.max_script_count)
