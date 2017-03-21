@@ -32,7 +32,7 @@ def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=
     '''
 
     # build Doc2Vec's vocab
-    doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=min_count, iter=20, dbow_words=1, workers=num_cores, alpha=alpha, min_alpha=0.001)
+    doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=min_count, iter=20, dbow_words=1, workers=num_cores, alpha=0.05, min_alpha=0.001)
     doc2vec_model.build_vocab(doc2vec_tagged_documents)
 
     # run training epochs while shuffling data and lowering learning rate (alpha)
@@ -44,7 +44,7 @@ def build_doc2vec_model(doc2vec_tagged_documents,training_algorithm=2,num_cores=
 
     return doc2vec_model
 
-def main(script_folder, model_pickle_filename, training_algorithm, num_cores, epochs, vector_size, window, min_count, alpha, max_script_count):
+def main(script_folder, model_pickle_filename, training_algorithm, num_cores, epochs, vector_size, window, min_count, alpha, max_script_count, min_script_len):
 
     doc2vec_tagged_documents = list()
     counter = 0
@@ -58,14 +58,14 @@ def main(script_folder, model_pickle_filename, training_algorithm, num_cores, ep
         fullpath = os.path.join(script_folder, py_file)
         with open(fullpath, "r") as py_file_contents:
             for line in py_file_contents:
-                counter += 1
                 parsed_json = json.loads(line)
                 code, comments = separate_code_and_comments(parsed_json['content'],py_file)
-                if len(code) == 0:
+                if len(code) < min_script_len:
                     continue
                 else:
                     tokenized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True, remove_one_char_words=True)
                     doc2vec_tagged_documents.append(doc2vec.TaggedDocument(tokenized_code, [counter]))
+                    counter += 1
 
     doc2vec_model = build_doc2vec_model(doc2vec_tagged_documents,training_algorithm,num_cores,epochs,vector_size,window,min_count,alpha)
 
@@ -137,5 +137,10 @@ if __name__ == "__main__":
                         default=10000,
                         help="Specify maximum number of code scripts to process (default = 10000)")
 
+    parser.add_argument("--min_script_len",
+                        type=int,
+                        default=500,
+                        help="Specify minimum length of code (in characters) to include script in processing (default = 500)")
+
     args = parser.parse_args()
-    main(args.script_folder, args.model_pickle_filename, args.training_algorithm, args.num_cores, args.epochs, args.vector_size, args.window, args.min_count, args.alpha, args.max_script_count)
+    main(args.script_folder, args.model_pickle_filename, args.training_algorithm, args.num_cores, args.epochs, args.vector_size, args.window, args.min_count, args.alpha, args.max_script_count, args.min_script_len)
