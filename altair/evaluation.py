@@ -22,12 +22,12 @@ def q_init(q):
 def score_performance(t):
     current_idx, v = t
     # sklearn throws deprecation warnings for 1d arrays so need to reshape v
-    pair_sims = cosine_similarity(numpy.array(v).reshape(1,-1), features)
+    pair_sims = cosine_similarity(v.reshape(1, -1), features)
     # TODO: Set a minimum cosine similarity score for candidates?
-    top_candidates = pair_sims[0].argsort()[-top_n-1:][::-1][1:]
+    top_candidates = pair_sims[0].argsort()[-top_n-1:][::-1]
 
     comp_id = raw[current_idx]["CompetitionId"]
-    candidate_ids = [raw[candidate_idx]["CompetitionId"] for candidate_idx in top_candidates]
+    candidate_ids = [raw[candidate_idx]["CompetitionId"] for candidate_idx in top_candidates if candidate_idx!=current_idx][:top_n]
     scoring = [candidate_id == comp_id for candidate_id in candidate_ids]
 
     top_1_score = int(scoring[0])
