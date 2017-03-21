@@ -39,7 +39,6 @@ def main(data_path, num_cores, top_n_param, vectorizer):
     global raw
     global features
     global q
-    global features_dense
 
     # Patch for error thrown by score_performance on declaration of top_n
     global top_n
