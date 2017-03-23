@@ -16,7 +16,9 @@ import json
 import argparse
 import sys
 from pyminifier import token_utils, minification, obfuscate
-from collections import namedtuple
+from collections import namedtuple, defaultdict
+from altair.util.separate_code_and_comments import separate_code_and_comments
+from difflib import SequenceMatcher
 
 from altair.util.log import getLogger
 
@@ -58,26 +60,61 @@ def main(args):
     reader = csv.DictReader(csv_file, field_names)
 
     files = 0
-    errors = 0
-    written = 0
-    options_tuple = namedtuple("options_tuple", ["tabs", "minimize", "obfuscate", "replacement_length"])
-    options = options_tuple(False, args.minimize, args.obfuscate, 1)
+    parsed_competitions = defaultdict(list)
     logger.info("Processing csv file...")
 
     for row in reader:
         files+=1
-        # Remove very short or long scripts based on command line arguments
-        script_len = len(row['ScriptContent'])
-        if script_len<args.min_script_len or script_len>args.max_script_len:
+        # Remove very short scripts based on command line arguments
+        script_len = len(separate_code_and_comments(row['ScriptContent'],row['ScriptTitle'])[0])
+        if script_len<args.min_script_len:
             continue
         # Remove meta kaggle scripts labeled as python that are probably R
         if row['ScriptContent'].find("<-")!=-1 and row['ScriptContent'].find("library(")!=-1:
             continue
-
         # Remove Kaggle competition name from the script content to allow model testing on competitions
         if 'CompetitionName' in row and 'ScriptContent' in row:
             row['ScriptContent'].replace(row['CompetitionName']," ")
             row['ScriptContent'].replace(row['CompetitionName'].lower(), " ")
+
+        parsed_competitions[row['CompetitionId']].append(row)
+
+    submissions_deduped = list()
+    logger.info("Removing duplicates...")
+
+    # Iterate over competitions to remove duplicates and near duplicates
+    for competition in parsed_competitions:
+        counter = 0
+        submissions = parsed_competitions[competition]
+
+        # Pair-wise SequenceMatcher comparison of ScriptContent
+        for i in range(len(submissions)):
+            for j in range(len(submissions)):
+                if i!=j and SequenceMatcher(None, submissions[i]['ScriptContent'].lower(), \
+                        submissions[j]['ScriptContent'].lower()).ratio() > args.duplicate_threshold:
+                    submissions[i]['ScriptContent'] = ""
+                    counter+=1
+                    break
+        remove_empties = [x for x in submissions if x['ScriptContent']!=""]
+        logger.info("%d duplicates removed from %d submissions in competition %s" % (counter,len(submissions),competition))
+        
+        # Ensure competition has at least ten entries for future comparison
+        if len(remove_empties)>=10:
+            for item in remove_empties:
+                submissions_deduped.append(item)
+        else:
+            logger.warning("Competition %s has too few remaining submissions at threshold %f" % (competition,args.duplicate_threshold))
+
+    # Build a custom namedtuple to integrate into pyminifer argparse command line methods
+    if args.minimize or args.obfuscate:
+        options_tuple = namedtuple("options_tuple", ["tabs", "minimize", "obfuscate", "replacement_length"])
+        options = options_tuple(False, args.minimize, args.obfuscate, 1)
+
+
+    errors = 0
+    written = 0
+
+    for row in submissions_deduped:
 
         # Minimize size of python script if set in args
         if args.minimize or args.obfuscate:
@@ -114,7 +151,6 @@ def main(args):
     csv_file.close()
     json_file.close()
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Convert Meta Kaggle csv file to json format')
 
@@ -134,11 +170,11 @@ if __name__ == "__main__":
     parser.add_argument("--min_script_len",
                         type=int,
                         default=100,
-                        help="Set a minimum character length for each script (default=100)")
-    parser.add_argument("--max_script_len",
-                        type=int,
-                        default=1000000000,
-                        help="Set a minimum character length for each script (default=1000000000)")
+                        help="Set a minimum amount of code (character length) for each script (default=100)")
+    parser.add_argument("--duplicate_threshold",
+                        type=float,
+                        default=0.5,
+                        help="Set the ratio threshold used to remove duplicates and near duplicates in a competition (default=0.5)")
     parser.add_argument("--minimize",
                         action="store_true",
                         help="Specify whether to minimize script contents (default = false)")
