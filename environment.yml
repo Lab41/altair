@@ -118,6 +118,7 @@ dependencies:
   - appdirs==1.4.0
   - baron==0.6.5
   - "--editable=git+git://github.com/mila-udem/blocks.git@stable#egg=blocks"
+  - flask==0.11.1
   - fuel==0.2.0
   - ganymede==0.1
   - gensim==1.0.1
