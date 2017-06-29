@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Source Code Embedding</title> 
+    <link href="../static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../static/css/jumbotron-narrow.css" rel="stylesheet">
+    <link href="../static/css/index.css" rel="stylesheet">
+    <script src="../static/js/jquery-1.11.2.js"></script>
+    <script src="../static/js/index.js"></script>
+    
+  </head>
+ 
+  <body>
+ 
+    <div class="container">
+      <div class="header">
+        <nav>
+          <ul class="nav nav-pills pull-right">
+          </ul>
+        </nav>
+      </div>
+ 
+      <div class="jumbotron">
+        <h2>Source Code Embedding</h2>
+        <form class="form-signin">
+        <label for="uri" class="sr-only">Image URI</label>
+        <!--<textarea rows="4" cols="90" type="text" name="uri" id="uri" required autofocus>Enter python script text</textarea>-->
+        <input type="name" name="uri" id="uri" class="form-control" placeholder="URL of raw Python script" required autofocus>
+         
+        <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="button">run</button>
+        <!--<h3>CPU:be patient</h3>-->
+        </form>
+        <!--<div id="userSpot"><p><h3>Your word:</h3></div>-->
+        <div id="closestSpot"><p><h3>Closest Scripts</h3><p></div>
+      </div>
+      <footer class="footer">
+      </footer>
+    </div>
+  </body>
+</html>
