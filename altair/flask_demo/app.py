@@ -69,14 +69,14 @@ if __name__ == "__main__":
                         type=str,
                         help="File name for pickle file containing pretrained Altair Doc2Vec model")
 
-    parser.add_argument("python_vectors",
+    parser.add_argument("vector_pickle_filename",
                         type=str,
                         help="Pickle file containing dictionary of URLs for Python scripts and associated Doc2Vec vectors")
     args = parser.parse_args()
     global model 
     model = pickle.load(open(args.model_pickle_filename,"rb"))
     global vectors 
-    vectors = pickle.load(open(args.python_vectors,"rb"))
+    vectors = pickle.load(open(args.vector_pickle_filename,"rb"))
     
     app.run(host='0.0.0.0')
 
