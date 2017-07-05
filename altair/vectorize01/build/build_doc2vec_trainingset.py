@@ -27,7 +27,7 @@ def main(script_folder,output_folder,min_script_len,max_total_files,max_per_pkl)
                 if counter!=0 and counter % 50000 == 0: logger.info("processed %d files" % counter)
                 if not just_started and counter % max_per_pkl == 0:
                     logger.info("Saving pickle file of tagged documents for size %d",max_per_pkl)
-                    pickle.dump(doc2vec_tagged_documents, open(os.path.join(output_folder,"training"+str(int(time.time()))+".pkl"), "wb"))
+                    pickle.dump(doc2vec_tagged_documents, open(os.path.join(output_folder,"training"+str(counter)+".pkl"), "wb"))
                     doc2vec_tagged_documents = list()
                     just_started = True
                 parsed_json = json.loads(line)
@@ -42,7 +42,7 @@ def main(script_folder,output_folder,min_script_len,max_total_files,max_per_pkl)
                     	just_started = False
         
     logger.info("Saving final pickle file of tagged documents for size %d",max_per_pkl)            
-    pickle.dump(doc2vec_tagged_documents, open(os.path.join(output_folder,"training"+str(int(time.time()))+".pkl"), "wb"))
+    pickle.dump(doc2vec_tagged_documents, open(os.path.join(output_folder,"training"+str(counter)+".pkl"), "wb"))
 
 # Run this when called from CLI
 if __name__ == "__main__":

@@ -26,25 +26,9 @@ import time
 from log import getLogger
 logger = getLogger(__name__)
 
-def train_doc2vec_model(doc2vec_model, doc2vec_tagged_documents, epochs, in_loop=False):
-
-    # build Doc2Vec's vocab
-    logger.info("building vocabulary")
-    doc2vec_model.build_vocab(doc2vec_tagged_documents, update=in_loop)
-
-    # run training epochs while shuffling data and lowering learning rate (alpha)
-    for i in range(epochs):
-        logger.info("starting code epoch %d" % int(i+1))
-        doc2vec_model.train(doc2vec_tagged_documents)
-        doc2vec_model.alpha -= 0.002
-        shuffle(doc2vec_tagged_documents)
-
-    return doc2vec_model
-
 def main(trainingset_folder, model_pickle_filename, training_algorithm, num_cores, epochs, vector_size, window, min_count, alpha, negative):
 
     doc2vec_model = doc2vec.Doc2Vec(dm=training_algorithm, size=vector_size, sample=1e-5, window=window, min_count=min_count, iter=20, dbow_words=1, workers=num_cores, alpha=0.05, min_alpha=0.001, negative=negative)
-    #in_loop = False
     doc2vec_tagged_documents = list()
 
     for trainingset in os.listdir(trainingset_folder):
