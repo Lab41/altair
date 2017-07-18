@@ -45,7 +45,6 @@ def add_header(r):
     
 def get_closest_docs(uri):
     user_doc = requests.get(uri).text
-    print("Sample:",user_doc[:100])
     code, _ = separate_code_and_comments(user_doc,"user doc")
     normalized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True)
     model.random.seed(0)
@@ -58,7 +57,6 @@ def get_closest_docs(uri):
         stored_vectors.append(vectors[url])
     pair_sims = cosine_similarity(user_vector.reshape(1, -1), stored_vectors)
     indices = (-pair_sims[0]).argsort()[:5]
-    print(indices)    
     return [(stored_urls[index],round(float(pair_sims[0][index]),2)) for index in indices]    
     
 if __name__ == "__main__":
