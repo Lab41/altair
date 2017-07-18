@@ -54,4 +54,4 @@ Check out the preprocessing [README.md](altair/preprocess00/README.md) to find o
 
 ## Notes
 
-Per [Gensim] (http://radimrehurek.com/gensim/models/doc2vec.html), reproducibility between interpreter launches requires use of the PYTHONHASHSEED environment variable to control hash randomization in Python 3.
+Per [Gensim](http://radimrehurek.com/gensim/models/doc2vec.html), reproducibility between interpreter launches requires use of the PYTHONHASHSEED environment variable to control hash randomization in Python 3.
