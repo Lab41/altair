@@ -1,9 +1,9 @@
 # Altair
 <img src="assets/altair_logo.png" width=500 height=300 alt="altair logo" />
 
-## Read our project findings on our [blog](https://gab41.lab41.org/doc2vec-to-assess-semantic-similarity-in-source-code-667acb3e62d7)
-
 ## Assessing Source Code Similarity with Unsupervised Learning
+
+### Read our project findings on our [blog](https://gab41.lab41.org/doc2vec-to-assess-semantic-similarity-in-source-code-667acb3e62d7)
 
 How do you determine what a segment of source code does?
 
