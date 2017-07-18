@@ -2,8 +2,8 @@ import pickle
 import requests
 import time
 import os
-from separate_code_and_comments import separate_code_and_comments
-from normalize_text import normalize_text
+from altair.util.separate_code_and_comments import separate_code_and_comments
+from altair.util.normalize_text import normalize_text
 import sys
 
 def intermediate_save(code_vectors, vector_file):
