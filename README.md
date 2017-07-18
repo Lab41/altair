@@ -51,3 +51,7 @@ After it finishes, you should have a new conda environment named altair containi
 source activate altair
 ```
 Check out the preprocessing [README.md](altair/preprocess00/README.md) to find out where you can obtain our training and testing data.
+
+## Notes
+
+Per [Gensim] (http://radimrehurek.com/gensim/models/doc2vec.html), reproducibility between interpreter launches requires use of the PYTHONHASHSEED environment variable to control hash randomization in Python 3.
