@@ -1,9 +1,9 @@
-# Altair
+# Altair 
 <img src="assets/altair_logo.png" width=500 height=300 alt="altair logo" />
 
-## Assessing Source Code Similarity with Unsupervised Learning
+## Read our project findings on our [blog](https://gab41.lab41.org/doc2vec-to-assess-semantic-similarity-in-source-code-667acb3e62d7)
 
-### Read our project findings on our [blog](https://gab41.lab41.org/doc2vec-to-assess-semantic-similarity-in-source-code-667acb3e62d7)
+## Assessing Source Code Similarity with Unsupervised Learning
 
 How do you determine what a segment of source code does?
 
@@ -12,6 +12,25 @@ How do you search a corpus for source code that you want to use?
 Altair is Lab41's exploration of representing source code and its associated features in a vector space. We are interested in generating robust source code embeddings for Python like [Word2Vec](https://code.google.com/archive/p/word2vec/) creates word embeddings for written text. You can read about our early experimentation with word embeddings for source code on the Lab41 [blog](https://gab41.lab41.org/python2vec-word-embeddings-for-source-code-3d14d030fe8f#.c6zmcq8be).
 
 Our primary use case of source code representation and similarity calculation is enabling meaningful recommendations of code to coders. We believe that similar techniques could be useful for code security analysis, code authorship, and code plaigarism detection.
+
+## Docker container to Vectorize a Folder of Python Scripts (*.py)
+
+The Docker container uses a Doc2Vec model trained on 1 million Python scripts from Github and the output is a dictionary of vectors saved as a pickle file in the "out" volume. A distance measurement (ex: cosine distance) can be used to locate similar vectors in the output. 
+
+Build the container 
+```
+docker build -f Dockerfile.vectorize_folder -t altair.vectorize_folder .
+```
+
+Run the container
+```
+docker run -v /dirwithPythonScripts/:/in -v /dirtoSaveOutput/:/out altair.vectorize_folder
+```
+
+Run the container with custom settings (ex: Use Doc2Vec model trained on 500k Python scripts from Github and specify output file name)
+```
+docker run -v /dirwithPythonScripts/:/in -v /dirtoSaveOutput/:/out altair.vectorize_folder /altair/models/doc2vec_trainedmodel_cbow_docs500000_negative10_mincount500_minlen2000_win5.pkl /in /out/myoutput.pkl
+```
 
 ## Prerequisites
 
