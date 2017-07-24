@@ -15,7 +15,7 @@ Our primary use case of source code representation and similarity calculation is
 
 ## Docker container to Vectorize a Folder of Python Scripts (*.py)
 
-The Docker container uses a Doc2Vec model previously trained on 1 million Python scripts from Github and the output is a dictionary of vectors saved as a pickle file in the "out" volume. A distance measurement (ex: cosine distance) can be used to locate similar vectors in the output. 
+The Docker container uses a Doc2Vec model trained on 1 million Python scripts from Github and the output is a dictionary of vectors saved as a pickle file in the "out" volume. A distance measurement (ex: cosine distance) can be used to locate similar vectors in the output. 
 
 Build the container 
 ```
