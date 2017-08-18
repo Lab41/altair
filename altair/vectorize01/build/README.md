@@ -48,7 +48,7 @@ The scripts in this directory were designed to be trained on Python scripts. We 
      
 ### 5 - Vectorize the scripts to be used for recommendations
 
-- Feed a folder of the scripts to be used for recommendations through the trained model and retain a lookup table for vectors and scripts (flask_demo/vectorize_python_script_folder.py or flask_demo/vectorize_python_corpus.py)
+- Feed a folder of the scripts to be used for recommendations through the trained model and retain a lookup table for vectors and scripts (Dockerfile.vectorize_folder)
 
 - Ensure that the normalization and parsing of these scripts are consistent with the training data used to train the model
 
