@@ -27,24 +27,9 @@ The scripts in this directory were designed to be trained on Python scripts. We 
 
 ### 4 - Check the model
 
-- If you don't have a labeled test set, one option is to spot check that the model has learned similarities between coding keywords. We used a Jupyter notebook to show the closest words to a query word. 
+- If you don't have a labeled test set, one option is to spot check that the model has learned similarities between coding keywords. We used a Jupyter notebook to show the closest words to a query word as shown in the "Do the word vectors show useful similarities?" example [here](https://markroxor.github.io/gensim/static/notebooks/doc2vec-IMDB.html)
 
-- The expectation is that the model will have learned groupings of similar words used in code. When you have multiple trained models they can be placed into the "word_models" array below and the results can be compared side by side.
-
-
-     from IPython.display import HTML
-     import pickle
-     trained_model = pickle.load(open(model_pickle_filename,"rb")) 
-     word_models = [trained_model]
-     word = 'import'
-     similars_per_model = [str(model.most_similar(word, topn=20)).replace('), ','),<br>\n') for model in word_models]
-     similar_table = ("<table><tr><th>" +
-         "</th><th>".join([str(model) for model in word_models]) + 
-         "</th></tr><tr><td>" +
-         "</td><td>".join(similars_per_model) +
-         "</td></tr></table>")
-     print("most similar words for '%s'" % word)
-     HTML(similar_table)
+- The expectation is that the model will have learned groupings of similar words used in code. When you have multiple trained models their results can be compared side by side.
      
 ### 5 - Vectorize the scripts to be used for recommendations
 
