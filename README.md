@@ -15,7 +15,7 @@ Our primary use case of source code representation and similarity calculation is
 
 ## Altair Demo via Docker!
 
-1. Download a pickle file containing the Gensim Doc2Vec vectors for 250,000 Python scripts from GitHub [here.](https://drive.google.com/file/d/0B5YNnW8pHPSWandUS2YtaTZVSWc/view?usp=sharing) In this example we saved the downloaded pickle file to ~/models/
+1. Download a pickle file containing the Gensim Doc2Vec vectors for 200,000 Python scripts from GitHub [here.](https://drive.google.com/file/d/0B5YNnW8pHPSWandUS2YtaTZVSWc/view?usp=sharing) In this example we saved the downloaded pickle file to ~/models/
 
 2. Build the container 
 ```
