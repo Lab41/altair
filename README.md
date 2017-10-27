@@ -1,7 +1,7 @@
 # Altair 
 <img src="assets/altair_logo.png" width=500 height=300 alt="altair logo" />
 
-## Read our project findings on our [blog](https://gab41.lab41.org/doc2vec-to-assess-semantic-similarity-in-source-code-667acb3e62d7)
+## Read our project findings on our [blog](https://gab41.lab41.org/doc2vec-to-assess-semantic-similarity-in-source-code-667acb3e62d7) then try the demo below
 
 ## Assessing Source Code Similarity with Unsupervised Learning
 
@@ -13,7 +13,47 @@ Altair is Lab41's exploration of representing source code and its associated fea
 
 Our primary use case of source code representation and similarity calculation is enabling meaningful recommendations of code to coders. We believe that similar techniques could be useful for code security analysis, code authorship, and code plaigarism detection.
 
-## Docker container to Vectorize a Folder of Python Scripts (*.py)
+## Altair Demo via Docker!
+
+1. Download a pickled Gensim Doc2Vec model trained on 1 million GitHub Python files [here.](https://drive.google.com/file/d/0B5YNnW8pHPSWandUS2YtaTZVSWc/view?usp=sharing) In this example we saved the downloaded Gensim model in ~/models/
+
+2. Build the container 
+```
+docker build -f Dockerfile.demo -t altair.demo .
+```
+
+3. Run the container
+```
+docker run -v ~/models/:/altair/altair/models/github/ -p 5000:5000 altair.demo
+```
+
+4. Open a browser and go to 
+```
+http://0.0.0.0:5000/
+```
+You should see the Altair home page below
+<img src="assets/altair_demo_home.png" width=640 height=480 alt="altair home screen" />
+
+5. This demonstration expects a url with raw python code. Let's test out Altair on Lab41's Magnolia (speaker separation in audio) project by entering the following url in the white input box:
+```
+https://raw.githubusercontent.com/Lab41/Magnolia/master/src/features/spectral_features.py
+```
+
+Press 'run'. You should see Altair recommendations of audio analysis Python scripts similar to the screenshot below
+
+<img src="assets/altair_demo_results_1.png" width=640 height=480 alt="altair results screen" />
+
+6. Let's do one more. Let's try Lab41's Pelops (car reidentification via computer vision) project by entering the following url in the white input box:
+```
+https://raw.githubusercontent.com/Lab41/pelops/master/pelops/features/hog.py
+```
+Press 'run'. You should see Altair recommendations of computer vision Python scripts similar to the screenshot below
+
+<img src="assets/altair_demo_results_2.png" width=640 height=480 alt="altair results screen" />
+
+
+
+## Make Your Own Altair: Docker container to Vectorize a Folder of Python Scripts (*.py)
 
 The Docker container uses a Doc2Vec model trained on 1 million Python scripts from Github and the output is a dictionary of vectors saved as a pickle file in the "out" volume. A distance measurement (ex: cosine distance) can be used to locate similar vectors in the output. 
 

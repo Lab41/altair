@@ -10,6 +10,7 @@ import json
 import requests
 from altair.util.separate_code_and_comments import separate_code_and_comments
 from altair.util.normalize_text import normalize_text
+import sys
 
 app= Flask(__name__)
 
@@ -22,11 +23,13 @@ def work_it():
     uri = request.form['uri']
     if uri:
         print ('looking for {0} ...'.format(uri))
+        sys.stdout.flush()
 
         try:
-        	closest = get_closest_docs(uri)
-        	print(json.dumps({'ret':'True','userWord':uri,'closestWord':closest,'msg':'success'}))
-        	return json.dumps({'ret':'True','userWord':uri,'closestWord':closest,'msg':'success'})
+            closest = get_closest_docs(uri)
+            print(json.dumps({'ret':'True','userWord':uri,'closestWord':closest,'msg':'success'}))
+            sys.stdout.flush()
+            return json.dumps({'ret':'True','userWord':uri,'closestWord':closest,'msg':'success'})
         except:
             return json.dumps({'ret':'False','userWord':uri,'msg':'script not found'})
     else:
@@ -50,6 +53,7 @@ def get_closest_docs(uri):
     model.random.seed(0)
     user_vector = model.infer_vector(normalized_code)
     print("finding similar...")
+    sys.stdout.flush() 
     stored_urls = list()
     stored_vectors = list()
     for url in vectors:
