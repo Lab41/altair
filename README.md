@@ -32,7 +32,7 @@ docker run -v ~/models/:/altair/altair/models/github/ -p 5000:5000 altair.demo
 http://0.0.0.0:5000/
 ```
 You should see the Altair home page below
-<img src="assets/altair_demo_home.png" width=640 height=480 alt="altair home screen" />
+<img src="assets/altair_demo_home.png" width=640 height=326 alt="altair home screen" />
 
 5. This demonstration expects a url with raw python code. Let's test out Altair on Lab41's Magnolia (speaker separation in audio) project by entering the following url in the white input box:
 ```
