@@ -21,17 +21,29 @@
       </div>
  
       <div class="jumbotron">
-        <h2>Source Code Embedding</h2>
-        <form class="form-signin">
+        <h2>Altair - Python Source Code Embedding</h2>
+        <form class="form-signin" name="myForm">
         <label for="uri" class="sr-only">Image URI</label>
+        <input type="radio" name="group1" id='word' value="word" align="left" onclick="handleClick(this);">Word
+        <input type="radio" name="group1" id='script' value="script" align="right" onclick="handleClick(this);" checked>Script<br>
         <!--<textarea rows="4" cols="90" type="text" name="uri" id="uri" required autofocus>Enter python script text</textarea>-->
         <input type="name" name="uri" id="uri" class="form-control" placeholder="URL of raw Python script" required autofocus>
-         
+
+        <script>
+        function handleClick(myRadio) {
+             if (myRadio.value=="script"){
+                  document.myForm.uri.placeholder="URL of raw Python script"
+          }
+             else{
+                  document.myForm.uri.placeholder="Python word"
+          }
+        }
+        </script>
         <button id="btnSignUp" class="btn btn-lg btn-primary btn-block" type="button">run</button>
         <!--<h3>CPU:be patient</h3>-->
         </form>
         <!--<div id="userSpot"><p><h3>Your word:</h3></div>-->
-        <div id="closestSpot"><p><h3>Closest Scripts</h3><p></div>
+        <div id="closestSpot"><p><h3>Closest Items</h3><p></div>
       </div>
       <footer class="footer">
       </footer>

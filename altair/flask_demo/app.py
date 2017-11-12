@@ -21,19 +21,25 @@ def main():
 @app.route('/',methods=['POST'])
 def work_it():
     uri = request.form['uri']
+    radio = request.form.get('group1', None)
+    print("radio",radio)
+
     if uri:
         print ('looking for {0} ...'.format(uri))
         sys.stdout.flush()
 
         try:
-            closest = get_closest_docs(uri)
-            print(json.dumps({'ret':'True','userWord':uri,'closestWord':closest,'msg':'success'}))
+            if radio == "script":
+                closest = get_closest_docs(uri)
+            else:
+                closest = get_closest_words(uri)
+            print(json.dumps({'ret':'True','userWord':uri,'closestWord':closest,'msg':'success', 'type':radio}))
             sys.stdout.flush()
-            return json.dumps({'ret':'True','userWord':uri,'closestWord':closest,'msg':'success'})
+            return json.dumps({'ret':'True','userWord':uri,'closestWord':closest,'msg':'success','type':radio})
         except:
-            return json.dumps({'ret':'False','userWord':uri,'msg':'script not found'})
+            return json.dumps({'ret':'False','userWord':uri,'msg':'not found','type':radio})
     else:
-        return json.dumps({'ret':'False','msg':'put in a script URL'})
+        return json.dumps({'ret':'False','msg':'put in a Python script URL or a Python word'})
 
 @app.after_request
 def add_header(r):
@@ -45,24 +51,40 @@ def add_header(r):
     r.headers["Pragma"] = "no-cache"
     r.headers["Expires"] = "0"
     return r
-    
+
+
 def get_closest_docs(uri):
-    user_doc = requests.get(uri).text
-    code, _ = separate_code_and_comments(user_doc,"user doc")
-    normalized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True)
+    #user_doc = requests.get(uri).text
+    r = requests.get(uri)
+    if r.status_code == 200:
+        user_doc = r.text
+        print("URI content length",len(user_doc))
+        code, _ = separate_code_and_comments(user_doc,"user doc")
+        normalized_code = normalize_text(code, remove_stop_words=False, only_letters=False, return_list=True)
+        model.random.seed(0)
+        user_vector = model.infer_vector(normalized_code)
+        print("finding similar...")
+        sys.stdout.flush()
+        stored_urls = list()
+        stored_vectors = list()
+        for url in vectors:
+            stored_urls.append(url)
+            stored_vectors.append(vectors[url])
+        pair_sims = cosine_similarity(user_vector.reshape(1, -1), stored_vectors)
+        indices = (-pair_sims[0]).argsort()[:5]
+        return [(stored_urls[index],round(float(pair_sims[0][index]),2)) for index in indices]
+    else:
+        print("URL returned status code", r.status_code)
+        raise ValueError('URL error')
+
+def get_closest_words(word):
     model.random.seed(0)
-    user_vector = model.infer_vector(normalized_code)
+    nearby_words = model.most_similar(word)
     print("finding similar...")
-    sys.stdout.flush() 
-    stored_urls = list()
-    stored_vectors = list()
-    for url in vectors:
-        stored_urls.append(url)
-        stored_vectors.append(vectors[url])
-    pair_sims = cosine_similarity(user_vector.reshape(1, -1), stored_vectors)
-    indices = (-pair_sims[0]).argsort()[:5]
-    return [(stored_urls[index],round(float(pair_sims[0][index]),2)) for index in indices]    
-    
+    sys.stdout.flush()
+    return [(word,round(float(distance),2)) for word,distance in nearby_words]
+
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Run Altair demo with Doc2Vec pretrained model')

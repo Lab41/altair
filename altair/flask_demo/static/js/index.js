@@ -14,6 +14,12 @@ $(function(){
                         var json = JSON.parse(response);
                         var _ret = json['ret'];
                         var _msg = json['msg'];
+                        if (json['type']=='script'){
+                        _msg = 'Script ' + _msg;
+                        }
+                        else{
+                        _msg = 'Word ' + _msg;
+                        }
 
                         console.log('response');
                         console.log(_ret);
@@ -28,11 +34,17 @@ $(function(){
                             formatted_results += "<h3><a href='"+json['closestWord'][i][0]+"' target='_blank'>"+stub+"</a> ("+json['closestWord'][i][1]+")</h3>"
                         }
                         console.log(formatted_results);
-                        
-                        $("#closestSpot").html("<h3>Closest Scripts" + formatted_results + "</h3>");
+
+                        if (json['type']=='script'){
+                        $("#closestSpot").html("<h3>Closest Scripts" + formatted_results + "</h3>");}
+                        else{
+                        $("#closestSpot").html("<h3>Closest Words" + formatted_results + "</h3>");
+                        }
                                 btn.prop('disabled',false);
 
-                        } else {
+                        }
+
+                        else {
                         
                         $("#closestSpot").html("<h3>"+_msg+"</h3>");
                                 console.log('error');
